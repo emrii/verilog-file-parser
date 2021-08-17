@@ -2,15 +2,18 @@
 
 import re
 
+moduleRegex = re.compile(r'(module )(.*)( (#)?\()')
+
 portRegex = re.compile(r'''(
 ((in|out)put)       #port declaration
 (\s)+
-(\w{3,4})               #wire/reg
-(\s)+
-([A-Z-]+(\d)+ : (\d)+])?  #if vector
-(\s)?
+(\w{3,4})*               #wire/reg
+(\s)*
+(\[[A-Z-]*(\d)* : [A-Z-]*(\d)*])?  #if vector
+(\s)*
 (\w+)               #name
-(,)?                #seperator
+(,|;)?
+                #seperator
 )''', re.VERBOSE)
 
 #think about what to do for declarations like input clk, reset..
@@ -23,30 +26,47 @@ parameterRegex = re.compile(r'''(
 =    
 (\s)*               
 (\w+)               #value
-(,|;)               #end  
+(,|\;)+               #end  
 )''', re.VERBOSE)
 
+#parameters with vector spec
 
-text = '''
-module MUX (in, sel, out);
+#access verilog file
+fileObject = open(r'MUX.v')
+text = fileObject.read()
 
-   parameter LEN = 8;
-   parameter LINES = 3; //2**3 = 8
+#Find Module name
+mo = moduleRegex.search(text)
+moduleName = mo.group(2)
+print("The design is of a:\n\t%s\n" %moduleName)
 
-   input wire  [LEN-1:0] in;
-   output wire 		out;
+#ports
+po = portRegex.findall(text)
+ports = []
+for i in po:
+    ports.append(i[0])
+inputs = []
+outputs = []
+for i in ports:
+    name = str(i)
+    if name[0:5] == 'input':
+        inputs.append(name)
+    else:
+        outputs.append(i)
+print("List of input ports:\n\t%s\n" %inputs)
+print("List of output ports:\n\t%s\n" %outputs)
 
-   input wire [LINES-1:0] sel;
+#format the ports how they are saved using groups
 
-   assign out = in[sel];
-'''
-
-
-mo = portRegex.findall(text)
-print(mo)
+#parameters
 lo = parameterRegex.findall(text)
-print(lo)
+parameters = []
+for i in lo:
+    parameters.append(i[0])
+print("List of parameters:\n\t%s" %parameters)     
 
+
+#write to a new file
 
 
                        
