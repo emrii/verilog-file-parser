@@ -16,7 +16,7 @@ portRegex = re.compile(r'''(
                 #seperator
 )''', re.VERBOSE)
 
-#think about what to do for declarations like input clk, reset..
+#CHANGE: think about what to do for declarations like input clk, reset..
 
 parameterRegex = re.compile(r'''(
 (parameter)         #declaration
@@ -29,8 +29,8 @@ parameterRegex = re.compile(r'''(
 (,|\;)+               #end  
 )''', re.VERBOSE)
 
-#parameters with vector spec
-
+#CHANGE: parameters with vector spec
+#CHANGE:take file name as arguement from terminal
 #access verilog file
 fileObject = open(r'MUX.v')
 text = fileObject.read()
@@ -56,7 +56,7 @@ for i in ports:
 print("List of input ports:\n\t%s\n" %inputs)
 print("List of output ports:\n\t%s\n" %outputs)
 
-#format the ports how they are saved using groups
+#CHANGE: format the ports how they are saved using groups
 
 #parameters
 lo = parameterRegex.findall(text)
@@ -66,7 +66,7 @@ for i in lo:
 print("List of parameters:\n\t%s" %parameters)     
 
 
-#write to a new file
+#CHANGE: write to a new file
 
 
                        
