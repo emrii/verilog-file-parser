@@ -3,30 +3,28 @@
 def verilogFileParser (verilogFile):
     import re
 
-    moduleRegex = re.compile(r'(module )(.*)( (#)?\()')
+    moduleRegex = re.compile(r'(module )(.*)((\s)+(#)?\()')
 
     portRegex = re.compile(r'''(
     ((in|out)put)       #port declaration
     (\s)+
-    (\w{3,4})*               #wire/reg
+    (reg|wire|logic|bit)?               #wire/reg
     (\s)*
-    (\[[A-Z-]*(\d)* : [A-Z-]*(\d)*])?  #if vector
+    (\[[A-Z-_0-9\s]*:[A-Z-_0-9\s]*\])?  #if vector
     (\s)*
-    (\w+)               #name
-    (,|;)?             #seperator
+    (\w+)                 #name
+    (,|;|\))?             #seperator
     )''', re.VERBOSE)
-    
-    #CHANGE: think about what to do for declarations like input clk, reset..
 
     parameterRegex = re.compile(r'''(
     (parameter)         #declaration
     (\s)+
-    [A-Z_0-9]+               #name
+    ([A-Z_0-9]+)               #name
     (\s)*
-    =    
+    (=)    
     (\s)*               
     ([A-Za-z0-9']+)               #value
-    (,|\;)+               #end  
+    (,|;|\))+               #end  
     )''', re.VERBOSE)
 
     #access Verilog file
@@ -45,28 +43,38 @@ def verilogFileParser (verilogFile):
     #ports
     po = portRegex.findall(text)
     ports = []
+    
     for i in po:
-        ports.append(i[0])
+        item = [i[1], i[4], i[6], i[8]]
+        for x in item :
+            if '' in item :
+                item.remove('')
+        item = " ".join(item)
+        ports.append(item)
         inputs = []
         outputs = []
-    for i in ports:
-        name = str(i)
+    for name in ports:
+        
         if name[0:5] == 'input':
-            inputs.append(name)
+            inputs.append(name[6:])
         else:
-            outputs.append(i)
+            outputs.append(name[7:])
     writeFileObject.write("List of input ports:\n\t%s\n" %inputs)
     writeFileObject.write("List of output ports:\n\t%s\n" %outputs)
 
-    #CHANGE: format the ports how they are saved using groups
-
+    
     #parameters
     lo = parameterRegex.findall(text)
     parameters = []
     for i in lo:
-        parameters.append(i[0])
+        item = [i[3], i[5], i[7]]
+        if '' in item : item.remove('')
+        item = " ".join(item)
+        parameters.append(item)
     writeFileObject.write("List of parameters:\n\t%s" %parameters)     
 
+    print("Results can be viewed from %s" %fileName)
+    
 
 
 import sys
